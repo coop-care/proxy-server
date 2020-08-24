@@ -39,11 +39,11 @@
       },
       {
         "package": "Smtp",
-        "repositoryURL": "https://github.com/fgroeger/Smtp.git",
+        "repositoryURL": "https://github.com/Mikroservices/Smtp.git",
         "state": {
-          "branch": "master",
-          "revision": "3bd3a990e7f94356aeafe5b456383bea6806520c",
-          "version": null
+          "branch": null,
+          "revision": "8e2dac89ac95cfd02d3dbd791e61730d37f6793b",
+          "version": "2.1.2"
         }
       },
       {

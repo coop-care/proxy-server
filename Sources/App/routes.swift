@@ -1,11 +1,9 @@
 import Vapor
 
 func routes(_ app: Application) throws {
-    app.get { req in
-        return "It works!"
-    }
-
-    app.get("hello") { req -> String in
-        return "Hello, world!"
-    }
+    let contactFormController = ContactFormController()
+    let rapidmailController = RapidmailController()
+    
+    app.post("contact", use: contactFormController.validateFormAndSendMail)
+    app.post("newsletter", "subscribe", use: rapidmailController.subscribe)
 }

@@ -2,8 +2,8 @@ import Vapor
 
 func routes(_ app: Application) throws {
     let contactFormController = ContactFormController()
-    let rapidmailController = RapidmailController()
+    let newsletterController = SendinblueController()
     
     app.post("contact", use: contactFormController.validateFormAndSendMail)
-    app.post("newsletter", "subscribe", use: rapidmailController.subscribe)
+    app.post("newsletter", "subscribe", use: newsletterController.subscribe)
 }

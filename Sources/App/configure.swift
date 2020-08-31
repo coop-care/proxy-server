@@ -9,7 +9,7 @@ public func configure(_ app: Application) throws {
     let corsConfiguration = CORSMiddleware.Configuration(
         allowedOrigin: .all,
         allowedMethods: [.GET, .POST, .PUT, .OPTIONS, .DELETE, .PATCH],
-        allowedHeaders: [.accept, .authorization, .contentType, .origin, .xRequestedWith, .userAgent, .accessControlAllowOrigin]
+        allowedHeaders: [.accept, .authorization, .contentType, .origin, .xRequestedWith, .userAgent, .accessControlAllowOrigin, HTTPHeaders.Name("api-key")]
     )
     let cors = CORSMiddleware(configuration: corsConfiguration)
     let error = ErrorMiddleware.default(environment: app.environment)

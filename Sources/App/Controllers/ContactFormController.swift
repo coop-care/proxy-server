@@ -32,11 +32,11 @@ final class ContactFormController {
             throw Abort(.badRequest, reason: "\(error)")
         }
         
-        var body = params.body
+        var body = params.body + "\n\n"
         let additionalParams = params.additional?.map({ "\($0): \($1)" }).joined(separator: "\n") ?? ""
         
         if !additionalParams.isEmpty {
-            body += "\n\n–––––––\n\(additionalParams)\n"
+            body += "–––––––\n\(additionalParams)\n\n\n"
         }
         
         let separator = " | "

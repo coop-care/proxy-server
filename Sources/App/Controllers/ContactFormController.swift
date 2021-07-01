@@ -4,16 +4,18 @@ import Smtp
 final class ContactFormController {
     
     func validateFormAndSendMail(req: Request) throws -> EventLoopFuture<String> {
-        var params = try req.content.decode(Dictionary<String, String>.self)
-        
-        guard let toKey = params.removeValue(forKey: "to"),
-            let fromValue = params.removeValue(forKey: "from"),
-            let subject = params.removeValue(forKey: "subject"),
-            var body = params.removeValue(forKey: "body") else {
-                throw Abort(.badRequest, reason: "missing key 'to', 'from', 'subject' or 'body'")
+        struct Params: Content {
+            let to: String
+            let from: String
+            let subject: String
+            let body: String
+            let name: String?
+            let files: [File]
+            let additional: Dictionary<String, String>?
         }
+        let params = try req.content.decode(Params.self)
         
-        guard let toValue = Environment.get(toKey) else {
+        guard let toValue = Environment.get(params.to) else {
             throw Abort(.badRequest, reason: "unknown value for key 'to'")
         }
         
@@ -24,8 +26,8 @@ final class ContactFormController {
             throw Abort(.badRequest, reason: "\(error)")
         }
         
-        let name = params.removeValue(forKey: "name")
-        let additionalParams = params.map({ "\($0): \($1)" }).joined(separator: "\n")
+        var body = params.body
+        let additionalParams = params.additional?.map({ "\($0): \($1)" }).joined(separator: "\n") ?? ""
         
         if !additionalParams.isEmpty {
             body += "\n\n–––––––\n\(additionalParams)\n"
@@ -41,8 +43,19 @@ final class ContactFormController {
             to = EmailAddress(address: toValue)
         }
         
-        let from = EmailAddress(address: fromValue, name: name)
-        let email = Email(from: from, to: [to], subject: subject, body: body)
+        let from = EmailAddress(address: params.from, name: params.name)
+        let subject = "=?utf-8?B?\(Data(params.subject.utf8).base64EncodedString())?="
+        var email = Email(from: from, to: [to], subject: subject, body: body)
+        
+        params.files
+            .filter { $0.data.readableBytes > 0 }
+            .forEach { file in
+                let contentType = file.contentType?.serialize() ?? ""
+                let data = Data(buffer: file.data)
+                let attachment = Attachment(name: file.filename, contentType: contentType, data: data)
+                email.addAttachment(attachment)
+                return
+            }
         
         return req.smtp.send(email).hop(to: req.eventLoop).flatMap { result -> EventLoopFuture<String> in
             switch result {

@@ -6,6 +6,6 @@ func routes(_ app: Application) throws {
     let mailController = MailController()
     
     app.post("mail", use: mailController.sendTemplate)
-    app.post("contact", use: contactFormController.validateFormAndSendMail)
+    app.post("mail", "form", use: contactFormController.validateFormAndSendMail)
     app.post("newsletter", "subscribe", use: newsletterController.subscribe)
 }

@@ -1,6 +1,12 @@
 import Vapor
 import Smtp
 
+extension String {
+    func encodingForSmtp() -> String {
+        return "=?utf-8?B?\(Data(self.utf8).base64EncodedString())?="
+    }
+}
+
 final class ContactFormController {
     
     func validateFormAndSendMail(req: Request) throws -> EventLoopFuture<String> {
@@ -38,13 +44,13 @@ final class ContactFormController {
         let to: EmailAddress
         if toValue.contains(separator) {
             let parts = toValue.components(separatedBy: separator)
-            to = EmailAddress(address: parts[1], name: parts[0])
+            to = EmailAddress(address: parts[1], name: parts[0].encodingForSmtp())
         } else {
             to = EmailAddress(address: toValue)
         }
         
-        let from = EmailAddress(address: params.from, name: params.name)
-        let subject = "=?utf-8?B?\(Data(params.subject.utf8).base64EncodedString())?="
+        let from = EmailAddress(address: params.from, name: params.name?.encodingForSmtp())
+        let subject = params.subject.encodingForSmtp()
         var email = Email(from: from, to: [to], subject: subject, body: body)
         
         params.files

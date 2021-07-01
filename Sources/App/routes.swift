@@ -10,8 +10,5 @@ func routes(_ app: Application) throws {
     app.post("mail", "form", use: contactFormController.validateFormAndSendMail)
     app.post("newsletter", "subscribe", use: newsletterController.subscribe)
     
-    app.get("proxy", use: proxyController.send)
     app.post("proxy", use: proxyController.send)
-    app.put("proxy", use: proxyController.send)
-    app.delete("proxy", use: proxyController.send)
 }

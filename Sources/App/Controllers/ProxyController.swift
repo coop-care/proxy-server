@@ -3,9 +3,9 @@ import Vapor
 final class ProxyController {
     struct Params: Content {
         let url: String
+        let method: String?
         let headers: HTTPHeaders?
-        let query: Dictionary<String, String>?
-        let data: Dictionary<String, String>?
+        let body: Dictionary<String, String>?
     }
     
     func send(req: Request) throws -> EventLoopFuture<ClientResponse> {
@@ -19,7 +19,7 @@ final class ProxyController {
             return req.eventLoop.future(error: Abort(.badRequest, reason: "unsupported host name"))
         }
         
-        switch req.method {
+        switch HTTPMethod(rawValue: params.method ?? "GET") {
         case .GET:
             method = req.client.get
         case .POST:
@@ -33,12 +33,8 @@ final class ProxyController {
         }
         
         return method(uri, params.headers ?? [:]) { req in
-            if let query = params.query {
-                try req.query.encode(query)
-            }
-            
-            if let data = params.data {
-                try req.query.encode(data)
+            if let body = params.body {
+                try req.query.encode(body)
             }
         }
     }
